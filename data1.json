@@ -1,0 +1,61 @@
+[{
+    "name": "CH",
+    "category": "M40",
+    "value": 1,
+    "origin": "sea"
+  },
+  {
+    "name": "AM",
+    "category": "M60",
+    "value": 2,
+    "origin": "land"
+  },
+  {
+    "name": "DZ",
+    "category": "M40",
+    "value": 3,
+    "origin": "sea"
+  },
+  {
+    "name": "CC",
+    "category": "M50",
+    "value": 4,
+    "origin": "land"
+  },
+  {
+    "name": "IS",
+    "category": "M50",
+    "value": 5,
+    "origin": "sky"
+  },
+  {
+    "name": "LM",
+    "category": "M40",
+    "value": 6,
+    "origin": "land"
+  },
+  {
+    "name": "SB",
+    "category": "M50",
+    "value": 7,
+    "origin": "sea"
+  },
+  {
+    "name": "SD",
+    "category": "M60",
+    "value": 8,
+    "origin": "sky"
+  },
+  {
+    "name": "RV",
+    "category": "M60",
+    "value": 9,
+    "origin": "land"
+  },
+  {
+    "name": "YK",
+    "category": "M60",
+    "value": 1,
+    "origin": "sea"
+  }
+]

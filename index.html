@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  .container {
+    margin-left: 0px;
+  }
+
+  .exit {
+    fill: red;
+  }
+
+  .update {
+    fill: orange;
+  }
+
+  .enter {
+    fill: green;
+  }
+
+  #json {
+    max-height: 600px;
+    width: 150px;
+    font-size: 10px;
+    overflow: scroll;
+    border: 2px solid gray;
+    border-radius: 15px;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="style.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<body>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="https://github.com/shanegibney/Interactive-Data-Visualisation">Home</a>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Data</a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" onclick="updateFunction('1','true')" href="# ">data1.json</a>
+        <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation">Link</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" onclick="refreshFunction('1','true')" href="#">Refresh</a>
+    </li>
+    <!-- <li class="nav-item">
+      <a class="nav-link disabled" href="#">INTERACTIVE DASH-BOARD (d3.js v4)</a>
+    </li> -->
+    <li class="nav-item"><span class="nav-link">INTERACTIVE DASH-BOARD (d3.js v4)</span></li>
+  </ul>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-10">
+        <div class="row">
+          <div class="col-md-12" id="race_graph">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6" id="pie">
+          </div>
+          <div class="col-md-6" id="race_graph_origin">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2" id="json">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <ul>
+          <li>refresh data button</li>
+          <li>Add update pattern to pie chart for when new race data is used, not for when filtering. So for when used initially. This is the implementation of teh arcTween function. It may need .call()</li>
+          <li>Create PDF of each element live or of whole page. There is a library which places HTML elements into pdf documents.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="d3v4.js"></script>
+  <script>
+    // set the dimensions and margins of the graph
+    var margin = {
+        top: 70,
+        right: 50,
+        bottom: 50,
+        left: 80
+      },
+      width = 1000 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom,
+      radius = 120;
+    var color = ["#2C93E8", "#838690", "#F56C4E", "#A60F2B", "#648C85", "#B3F2C9", "#528C18", "#C3F25C"];
+    var off_opacity = 0.5;
+    // set the domains and ranges for main bar chart
+
+    // var x = d3.scaleBand()
+    //   .range([0, width])
+    //   .padding([0.6]);
+    //
+    // // temporal y-scale
+    // var y = d3.scaleLinear()
+    //   .range([height, 0]);
+    //
+    // var xAxis = d3.axisBottom(x);
+    //
+    // var yAxis = d3.axisLeft(y)
+    //   .ticks(8);
+    //
+    // // Add main graph svg
+    // var svg = d3.select("#race_graph")
+    //   .append("svg")
+    //   .attr("width", width + margin.left + margin.right) //1000
+    //   .attr("height", height + margin.top + margin.bottom); //400
+    //
+    // // Add groups for main bar chart
+    // var g0 = svg.append("g")
+    //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // // set the domains and ranges for Origin bar chart
+    //
+    // // prepare data: count number for each origin
+    // var heightOrigin = 200;
+    // var xOrigin = d3.scaleBand()
+    //   .range([0, width / 2])
+    //   .padding([0.6]);
+    //
+    // // temporal y-scale origin bar chart
+    // var yOrigin = d3.scaleLinear()
+    //   .range([heightOrigin, 0]);
+    //
+    // var xAxisOrigin = d3.axisBottom(xOrigin);
+    //
+    // var yAxisOrigin = d3.axisLeft(yOrigin)
+    //   .ticks(8);
+    // var origin_count;
+    //
+    // // Add origin graph svg
+    // var svgOrigin = d3.select("#race_graph_origin")
+    //   // .data(origin_count)
+    //   .append("svg")
+    //   // .attr("width", width + margin.left + margin.right)
+    //   .attr("width", 2 * width / 3)
+    //   .attr("height", heightOrigin + margin.top + margin.bottom);
+    //
+    // // Add groups for origin bar chart
+    // var g0Origin = svgOrigin.append("g")
+    //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // these arrays record have groups have been clicked to set filtering of data
+    var categoryArr = [];
+    var originArr = [];
+    var num;
+    var index = 1;
+    var indexTemp = ''; //a number never used
+    // var indexInit = 1; //default index so that data1.json will be called first
+    // init(1);
+    var drawNew = true;
+    var num;
+    var str;
+
+    function refreshFunction(index, drawNew) { //clears the data filtering arrays
+      console.log("I am refresh");
+      // categoryArr = [];
+      // originArr = [];
+      // data = [];
+      // newdata = [];
+      // drawNew = true;
+      // updateFunction(index, drawNew);
+    }
+
+    // function init(indexInit) {
+    //   categoryArr = [];
+    //   originArr = [];
+    //   data = [];
+    //   newdata = [];
+    //   index = indexInit;
+    //   // console.log("init -> index = " + index);
+    //   console.log("init -> indexInit = " + indexInit);
+    //   updateFunction(index);
+    // }
+    updateFunction(index, drawNew);
+
+    function updateFunction(index, drawNew) {
+
+      if (indexTemp != index) { //when a new data set is used clear the filter arrays
+        drawNew = true;
+        // refresh(index);
+      }
+      indexTemp = index;
+
+      d3.json("data" + index + ".json", function(error, newdata) {
+
+        var stringConditionCategory = ''; //construct condition
+        var stringConditionOrigin = ''; //construct condition
+        var stringCondition = '';
+
+        if (error) throw error;
+        data = newdata;
+
+        if (drawNew == true) {
+          //clearing filter arrays
+          originArr = [];
+          categoryArr = [];
+        }
+
+        if (originArr.length > 0) { //if originArr has elements
+          for (var i = 0; i < originArr.length; i++) {
+            if (i > 0) {
+              stringConditionOrigin += '&&';
+            }
+            stringConditionOrigin += '(newdata[i].origin != "' + originArr[i] + '")';
+          }
+          // filter out all data which does not have origins listed in the originArr array
+          for (var i = newdata.length - 1; i >= 0; i--) {
+            if (eval(stringConditionOrigin)) {
+              num = newdata.indexOf(newdata[i]);
+              newdata.splice(i, 1);
+            }
+          }
+        }
+
+        if (categoryArr.length > 0) { //only categoryArr has elements
+          for (var i = 0; i < categoryArr.length; i++) {
+            if (i > 0) {
+              stringConditionCategory += '&&';
+            }
+            stringConditionCategory += '(newdata[i].category != "' + categoryArr[i] + '")';
+          }
+          // filter out all data which does not have categories listed in the categoryArr array
+          for (var i = newdata.length - 1; i >= 0; i--) {
+            if (eval(stringConditionCategory)) {
+              num = newdata.indexOf(newdata[i]);
+              newdata.splice(i, 1);
+            }
+          }
+        }
+
+        data.forEach(function(d) {
+          d.value = +d.value;
+        })
+
+        // To display json in html page
+        document.getElementById("json").innerHTML = "<h5>data" + index + ".json</h5>" + "<pre>" + JSON.stringify(newdata, null, 2) + "</pre>";
+
+        d3.select("svg").remove(); //this will clear all charts
+        updateBar();
+
+        if (drawNew == true) {
+          drawNew = false;
+          updatePie(index); //only draw pie chart initially
+          updateBarOrigin(index);
+        };
+      });
+    }
+
+    //---------------------------------------------------------------
+    //--------------****** Start Main Bar Chart ******---------------
+    //---------------------------------------------------------------
+
+    function updateBar(err, newdata) { //****************************
+
+      var x = d3.scaleBand()
+        .range([0, width])
+        .padding([0.6]);
+
+      // temporal y-scale
+      var y = d3.scaleLinear()
+        .range([height, 0]);
+
+      var xAxis = d3.axisBottom(x);
+
+      var yAxis = d3.axisLeft(y)
+        .ticks(8);
+
+      // Add main graph svg
+      var svgBar = d3.select("#race_graph")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right) //1000
+        .attr("height", height + margin.top + margin.bottom); //400
+
+      // Add groups for main bar chart
+      var g0 = svgBar.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // set the domains
+      x.domain(data.map(function(d) {
+        return d.name
+      }));
+
+      // set domain temporal y-scale
+      y.domain([0, d3.max(data, function(d) {
+        return d.value;
+      })]).nice();
+
+      // Add the X Axis
+      svgBar.select(".x.axis").call(xAxis);
+      svgBar.select(".x.axis").remove();
+      svgBar.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
+        .call(xAxis);
+
+      // Add the y axis on left
+      svgBar.select(".y.axis").remove();
+      svgBar.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+        .call(yAxis);
+
+      var t = d3.transition()
+        .duration(750);
+
+      // JOIN new data with old elements
+      var newRects0 = g0.selectAll(".bar")
+        .data(data, function(d) {
+          return d.name;
+        });
+
+      // EXIT old elements not present in new data
+      newRects0.exit()
+        .attr("class", function(d) {
+          return "exit bar";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", x.bandwidth())
+        .attr("y", function(d) {
+          return height;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects0.attr("class", function(d) {
+          return "update bar";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", x.bandwidth())
+        .attr("x", function(d) {
+          return x(d.name);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return y(d.value)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return height - y(d.value)
+        }); // old elememnts in new data transition to their correct height
+
+      // ENTER new elements present in new data
+      // EXIT and UPDATE above will not apply first time render as there is no change to the data.
+      newRects0.enter()
+        .append('rect')
+        .attr("class", "enter bar") // fill green
+        .attr("x", function(d) {
+          return x(d.name);
+        })
+        .attr("y", height) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", x.bandwidth()) //why is the width not consistent
+        // .attr("width", 50)
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return y(d.value);
+        }) // after the transition bars goes to its correct y position
+        .attr("height", function(d, i) {
+          return height - y(d.value)
+        })
+        .style("fill", function(d, i) {
+          return color[i];
+        }); // after transition bar grows to its full height
+
+    }; // end of updateBar() function
+
+    //---------------------------------------------------------------
+    //--------------****** Start Bar Chart Origin ******-------------
+    //---------------------------------------------------------------
+
+    function updateBarOrigin(index) { //***********************
+      // set the domains and ranges for Origin bar chart
+      d3.select(".originClass").remove();
+
+      originArr.length = 0;
+      categoryArr.length = 0;
+      // prepare data: count number for each origin
+      var heightOrigin = 200;
+      var xOrigin = d3.scaleBand()
+        .range([0, width / 2])
+        .padding([0.6]);
+
+      // temporal y-scale origin bar chart
+      var yOrigin = d3.scaleLinear()
+        .range([heightOrigin, 0]);
+
+      var xAxisOrigin = d3.axisBottom(xOrigin);
+
+      var yAxisOrigin = d3.axisLeft(yOrigin)
+        .ticks(8);
+      var origin_count;
+
+      // Add origin graph svg
+      var svgOrigin = d3.select("#race_graph_origin")
+        // .data(origin_count)
+        .append("svg")
+        .attr("class", "originClass")
+        // .attr("width", width + margin.left + margin.right)
+        .attr("width", 2 * width / 3)
+        .attr("height", heightOrigin + margin.top + margin.bottom);
+
+      // Add groups for origin bar chart
+      var g0Origin = svgOrigin.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      origin_count = d3.nest()
+        .key(function(d) {
+          return d.origin;
+        })
+        .rollup(function(leaves) {
+          return leaves.length;
+        })
+        .entries(data);
+
+      // set the domains
+      xOrigin.domain(origin_count.map(function(d) {
+        return d.key;
+      }));
+
+      // set domain temporal y-scale
+      yOrigin.domain([0, d3.max(origin_count, function(d) {
+        return d.value;
+      })]).nice();
+
+      // Add the X Axis
+      svgOrigin.select(".xOrigin.axisOrigin").call(xAxisOrigin);
+      svgOrigin.select(".xOrigin.axisOrigin").remove();
+      svgOrigin.append("g")
+        .attr("class", "xOrigin axisOrigin")
+        .attr("transform", "translate(" + (margin.left) + "," + (heightOrigin + margin.top) + ")")
+        .call(xAxisOrigin);
+
+      // Add the y axis on left
+      svgOrigin.select(".yOrigin.axisOrigin").remove();
+      svgOrigin.append("g")
+        .attr("class", "yOrigin axisOrigin")
+        .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+        .call(yAxisOrigin);
+
+      var t = d3.transition()
+        .duration(750);
+
+      // JOIN new data with old elements
+      var newRects0Origin = g0Origin.selectAll(".barOrigin")
+        .data(origin_count, function(d) {
+          return d.key;
+        });
+
+      // EXIT old elements not present in new data
+      newRects0Origin.exit()
+        .attr("class", function(d) {
+          return "exit barOrigin";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", xOrigin.bandwidth())
+        .attr("y", function(d) {
+          return heightOrigin;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects0Origin.attr("class", function(d) {
+          return "update barOrigin";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", xOrigin.bandwidth())
+        .attr("x", function(d) {
+          return xOrigin(d.key);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return yOrigin(d.value)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return heightOrigin - yOrigin(d.value)
+        }); // old elememnts in new data transition to their correct height
+
+
+      // ENTER new elements present in new data
+      newRects0Origin
+        .enter()
+        .append('rect')
+        .style("opacity", function(d, i) {
+          if (originArr.indexOf(d.key) == -1) { //category is not in the categoryArr array
+            return off_opacity;
+          } else {
+            return 1.0;
+          }
+        })
+        .on("click", function(d, i) {
+          //test if already an element of originArr, if so remove it, else add it to the array
+          if (originArr.includes(d.key)) {
+            num = originArr.indexOf(d.key);
+            originArr.splice(num, 1);
+            d3.selectAll(".barOrigin" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (originArr.indexOf(d.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          } else {
+            originArr.push(d.key);
+            d3.selectAll(".barOrigin" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (originArr.length == 0) { // how to do this
+                  return 1.0;
+                }
+                if (originArr.indexOf(d.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          }
+          updateFunction(index, 'false');
+        })
+        .on('mouseover', function(d, i) {
+          d3.selectAll(".barOrigin" + i) //all bars
+            .style("opacity", function(d, i) {
+              if (originArr.indexOf(d.key) == -1) { //category is not in the originArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              };
+            });
+        })
+        .on('mouseout', function(d, i) {
+          d3.selectAll(".barOrigin" + i) //all bars
+            .style("opacity", function(d, i) {
+              if (originArr.indexOf(d.key) == -1) { //category is not in the originArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              };
+            });
+        })
+        .attr("class", function(d, i) {
+          return "enter barOrigin" + i + " barOrigin";
+        }) // fill green
+        .attr("x", function(d) {
+          return xOrigin(d.key);
+        })
+        .attr("y", heightOrigin) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", xOrigin.bandwidth())
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return yOrigin(d.value);
+        }) // after the transition bars goes to its correct y position
+        .style("fill", function(d, i) {
+          return color[i];
+        })
+        .attr("height", function(d, i) {
+          return heightOrigin - yOrigin(d.value)
+        });
+      // after transition bar grows to its full height
+    }; // end of updateBarOrigin() function
+
+    //---------------------------------------------------------------
+    //---------------****** Start of Pie Chart *******---------------
+    //---------------------------------------------------------------
+
+    function updatePie(index) {
+      // Generate an array object on categories as a category
+      d3.select(".pieClass").remove();
+      category_count = d3.nest()
+        .key(function(d) {
+          return d.category;
+        })
+        .rollup(function(leaves) {
+          return leaves.length;
+        })
+        .entries(data);
+      var category_arcs = d3.pie()
+        .padAngle(.02)
+        .value(function(d) {
+          return d.value;
+        })
+        (category_count);
+      var arc = d3.arc()
+        .outerRadius(radius - 30)
+        .innerRadius(radius / 3);
+
+      var labelArc = d3.arc()
+        .outerRadius(radius - 30)
+        .innerRadius(radius - 100);
+
+      var heightPie = 450;
+
+      svgPie = d3.select("#pie")
+        .append("svg")
+        .attr("class", "pieClass")
+        .attr("width", width)
+        .attr("height", heightPie)
+        .append("g")
+        .attr("transform", "translate(" + (margin.left + radius) + "," + (margin.top + radius) + ")"); //center of pie
+
+      var g = svgPie.selectAll("arc")
+        .data(category_arcs)
+        .enter().append("g")
+        .attr("class", "arc");
+
+      g.append("path")
+        .attr("d", arc)
+        .attr("class", function(d, i) {
+          return "slice" + i + " enter slice";
+        })
+        //need to initially set opacities conditionally determined by categoryArr array
+        .style("opacity", function(d, i) {
+          if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+            return off_opacity;
+          } else {
+            return 1.0;
+          }
+        })
+        .on('click', function(d, i) {
+          if (categoryArr.includes(d.data.key)) {
+            num = categoryArr.indexOf(d.data.key);
+            categoryArr.splice(num, 1); //remove category
+            d3.selectAll(".slice" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          } else {
+            categoryArr.push(d.data.key); //add category
+            d3.selectAll(".slice" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (categoryArr.length == 0) { // how to do this
+                  return 1.0;
+                }
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+            d3.selectAll(".slice" + i) //all slices
+              .style("opacity", function(d, i) {
+                if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                  return off_opacity;
+                } else {
+                  return 1.0;
+                }
+              });
+          };
+          updateFunction(index, 'false');
+        })
+        .on('mouseover', function(d, i) {
+          d3.selectAll(".slice" + i) //all slices
+            .style("opacity", function(d, i) {
+              if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              }
+            });
+        })
+        .on('mouseout', function(d, i) {
+          d3.selectAll(".slice" + i) //all slices
+            .style("opacity", function(d, i) {
+              if (categoryArr.indexOf(d.data.key) == -1) { //category is not in the categoryArr array
+                return off_opacity;
+              } else {
+                return 1.0;
+              };
+            });
+        })
+        .style("fill", function(d, i) {
+          return color[i];
+        });
+      g.append("text")
+        .attr("transform", function(d) {
+          return "translate(" + labelArc.centroid(d) + ")";
+        })
+        .text(function(d) {
+          return d.data.key + " = " + d.value;
+        })
+        .style("text-anchor", "middle")
+        .style("font-size", "15px")
+        .style("fill", "white");
+      svgPie.append("text")
+        .attr("transform", "translate(0," + (0 - radius) + ")")
+        .text("Count occurences of each category")
+        .style("text-anchor", "middle")
+        .style("fill", "black");
+
+      function arcTween(a) {
+        var i = d3.interpolate(this._current, a);
+        this._current = i(0);
+        return function(t) {
+          return arc(i(t));
+        };
+      };
+      // ****************** - PIE Chart - *******
+    }; // end of updatePie() function
+  </script>
+</body>

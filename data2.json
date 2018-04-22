@@ -1,0 +1,61 @@
+[{
+    "name": "RT",
+    "category": "M50",
+    "value": 1,
+    "origin": "land"
+  },
+  {
+    "name": "KM",
+    "category": "M50",
+    "value": 2,
+    "origin": "sky"
+  },
+  {
+    "name": "SD",
+    "category": "M60",
+    "value": 3,
+    "origin": "sea"
+  },
+  {
+    "name": "DK",
+    "category": "M50",
+    "value": 4,
+    "origin": "land"
+  },
+  {
+    "name": "BD",
+    "category": "M40",
+    "value": 5,
+    "origin": "sea"
+  },
+  {
+    "name": "KC",
+    "category": "M40",
+    "value": 6,
+    "origin": "land"
+  },
+  {
+    "name": "PM",
+    "category": "M40",
+    "value": 7,
+    "origin": "sea"
+  },
+  {
+    "name": "NR",
+    "category": "M50",
+    "value": 8,
+    "origin": "land"
+  },
+  {
+    "name": "LM",
+    "category": "M50",
+    "value": 9,
+    "origin": "sea"
+  },
+  {
+    "name": "SL",
+    "category": "M60",
+    "value": 1,
+    "origin": "land"
+  }
+]

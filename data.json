@@ -1,0 +1,51 @@
+var data = [{
+    "name": "RT",
+    "category": "M50",
+    "value": 1
+  },
+  {
+    "name": "K M",
+    "category": "M50",
+    "value": 2
+  },
+  {
+    "name": "SD",
+    "category": "M60",
+    "value": 3
+  },
+  {
+    "name": "DK",
+    "category": "M50",
+    "value": 4
+  },
+  {
+    "name": "BD",
+    "category": "M40",
+    "value": 5
+  },
+  {
+    "name": "KC",
+    "category": "M40",
+    "value": 6
+  },
+  {
+    "name": "PM",
+    "category": "M40",
+    "value": 7
+  },
+  {
+    "name": "NR",
+    "category": "M50",
+    "value": 8
+  },
+  {
+    "name": "LM",
+    "category": "M50",
+    "value": 9
+  },
+  {
+    "name": "SL",
+    "category": "M60",
+    "value": 1
+  }
+]
