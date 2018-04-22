@@ -35,17 +35,24 @@
 <body>
   <ul class="nav nav-tabs">
     <li class="nav-item">
-      <a class="nav-link active" href="https://github.com/shanegibney/Interactive-Data-Visualisation">Home</a>
+      <a class="nav-link active" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Home</a>
     </li>
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Data</a>
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Mens Races</a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" onclick="updateFunction('1','true')" href="# ">data1.json</a>
+        <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
+      </div>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Womens Races</a>
       <div class="dropdown-menu">
         <a class="dropdown-item" onclick="updateFunction('1','true')" href="# ">data1.json</a>
         <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
       </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation">Link</a>
+      <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Link</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" onclick="refreshFunction('1','true')" href="#">Refresh</a>
@@ -53,7 +60,7 @@
     <!-- <li class="nav-item">
       <a class="nav-link disabled" href="#">INTERACTIVE DASH-BOARD (d3.js v4)</a>
     </li> -->
-    <li class="nav-item"><span class="nav-link">INTERACTIVE DASH-BOARD (d3.js v4)</span></li>
+    <li class="nav-item"><span class="nav-link">Leinster Open Sea Races</span></li>
   </ul>
   <div class="container-fluid">
     <div class="row">
@@ -75,7 +82,8 @@
     <div class="row">
       <div class="col-md-12">
         <h5>To do:</h5>
-        <ul>
+        <ol>
+          <li>Check responsiveness of site</li>
           <li>Convert all integers values to time values and call them value1</li>
           <li>Add two more such values: value2 and value3</li>
           <li>x-axis to display full names and at a slant</li>
@@ -90,8 +98,14 @@
           <li>Refresh data button not working. Odd behaviour here even in the simplest case when clicking the 'Refresh' in the nav bar does not even console.log a simple string.</li>
           <li>Add update pattern to pie chart for when new race data is used, not for when filtering. So for when used initially. This is the implementation of teh arcTween function. It may need .call()</li>
           <li>Create PDF of each element live or of whole page. There is a library which places HTML elements into pdf documents.</li>
-          <li>Setup opacity to react correctly on pie chart and origin bar chart on mousover. May need to create a separate project to test this on data svg elements.</li>
-        </ul>
+          <li>Setup opacity to react correctly on pie chart and origin bar chart on mousover. May need to create a separate project to test this on data svg elements. initially all sections/bars are opacity 1, on mouseover all go to 0.2 except for section
+            currently being moused over, that remains at 1.0. When clicked it stays at 1.0 and all unclicked stay on 0.2 opacity. If none or all are clicked then all sections should be at opacity 1.0. Note when none are chosen, the main bar chart displays
+            as if all are chosen. This in fine, because we never want to unselect all sections.</li>
+          <li>Nested dropdown: choose year and then race</li>
+          <li>Consider a result by swimmer page. Clicking on a swimmer will bring up their indiviual results. Difficult as data for this will need to be sourced over all races.</li>
+          <li>Consider a result by club page.</li>
+          <li>consider an initial home page</li>
+        </ol>
       </div>
     </div>
   </div>
