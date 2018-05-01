@@ -25,6 +25,47 @@
     border: 2px solid gray;
     border-radius: 15px;
   }
+
+  table {
+    width: 60%;
+    border-collapse: collapse;
+    margin: 0px auto;
+  }
+
+  /* Zebra striping */
+
+  tr:nth-of-type(odd) {
+    background: #eee;
+  }
+
+  th {
+    background: #333;
+    color: white;
+    font-weight: bold;
+    cursor: s-resize;
+    background-repeat: no-repeat;
+    background-position: 3% center;
+  }
+
+  td {
+    padding: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+
+  th {
+    padding: 6px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+
+  th.des:after {
+    content: "\21E3";
+  }
+
+  th.aes:after {
+    content: "\21E1";
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -40,22 +81,30 @@
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Mens Races</a>
       <div class="dropdown-menu">
-        <a class="dropdown-item" onclick="updateFunction('1','true')" href="# ">data1.json</a>
+        <a class="dropdown-item" onclick="updateFunction('1','true')" href="#">data1.json</a>
         <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
       </div>
     </li>
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Womens Races</a>
       <div class="dropdown-menu">
-        <a class="dropdown-item" onclick="updateFunction('1','true')" href="# ">data1.json</a>
+        <a class="dropdown-item" onclick="updateFunction('1','true')" href="#">data1.json</a>
         <a class="dropdown-item" onclick="updateFunction('2','true')" href="#">data2.json</a>
       </div>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Link</a>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Sort By</a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" onclick="sortFunction('clock')" href="#">Clocktime</a>
+        <a class="dropdown-item" onclick="sortFunction('race')" href="#">Racetime</a>
+        <a class="dropdown-item" onclick="sortFunction('handicap')" href="#">Handicap</a>
+      </div>
     </li>
     <li class="nav-item">
       <a class="nav-link" onclick="refreshFunction('1','true')" href="#">Refresh</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Link</a>
     </li>
     <!-- <li class="nav-item">
       <a class="nav-link disabled" href="#">INTERACTIVE DASH-BOARD (d3.js v4)</a>
@@ -70,7 +119,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-md-6" id="pie">
+          <div class="col-md-4" id="pie">
           </div>
           <div class="col-md-6" id="race_graph_origin">
           </div>
@@ -80,12 +129,19 @@
       </div>
     </div>
     <div class="row">
+      <div class="col-md-1">
+
+      </div>
+      <div class="col-md-8" id="table">
+      </div>
+    </div>
+    <div class="row">
       <div class="col-md-12">
         <h5>To do:</h5>
         <ol>
           <li>Check responsiveness of site</li>
-          <li>Convert all integers values to time values and call them value1</li>
-          <li>Add two more such values: value2 and value3</li>
+          <li><strike>Convert all integers values to time values and call them value1</strike></li>
+          <li><strike> Add two more such values: value2 and value3</strike></li>
           <li>x-axis to display full names and at a slant</li>
           <li>Add mouseover tooltip to main bar chart, given swimmer's details</li>
           <li>Add points data and axis on right for points, display on main bar chart</li>
@@ -214,6 +270,9 @@
       // updateFunction(index, drawNew);
     }
 
+    function sortFunction(sortOn) {
+      console.log("Sort by: " + sortOn);
+    }
     // function init(indexInit) {
     //   categoryArr = [];
     //   originArr = [];
@@ -237,7 +296,7 @@
       d3.json("data" + index + ".json", function(error, newdata) {
 
         var parseTime = d3.timeParse("%M:%S");
-        var timeformat = d3.timeFormat("%M:%S")
+        var timeformat = d3.timeFormat("%M:%S");
 
         var stringConditionCategory = ''; //construct condition
         var stringConditionOrigin = ''; //construct condition
@@ -297,6 +356,7 @@
 
         d3.select("svg").remove(); //this will clear all charts
         updateBar();
+        updateTable(index);
 
         if (drawNew == true) {
           drawNew = false;
@@ -894,5 +954,88 @@
       };
       // ****************** - PIE Chart - *******
     }; // end of updatePie() function
+
+    //---------------------------------------------------------------
+    //---------------****** Start of Pie Chart *******---------------
+    //---------------------------------------------------------------
+
+    function updateTable(index) {
+      // console.log("The table function");
+      var sortAscending = true;
+      d3.select(".tableClass").remove();
+
+      var table = d3.select('#table').append('table')
+        .attr("class", "tableClass");
+
+      var titles = d3.keys(data[0]);
+      var titles = ["name", "category", "clocktime", "handicap", "origin"]
+      var headers = table.append('thead').append('tr')
+        .selectAll('th')
+        .data(titles).enter()
+        .append('th')
+        .text(function(d) {
+          return d
+        })
+        .on('click', function(d) {
+          headers.attr('class', 'header');
+          if (d == "name" || d == "club" || d == "category") { //these keys sort alphabetically
+            // sorting alphabetically");
+            if (sortAscending) {
+              rows.sort(function(a, b) {
+                return d3.ascending(a[d], b[d]);
+              });
+              sortAscending = false;
+              this.className = 'aes';
+            } else {
+              rows.sort(function(a, b) {
+                return d3.descending(a[d], b[d]);
+              });
+              sortAscending = true;
+              this.className = 'des';
+            }
+          } else {
+            if (sortAscending) {
+              //all other keys sort numerically including time
+              rows.sort(function(a, b) {
+                return b[d] - a[d];
+              });
+              sortAscending = false;
+              this.className = 'aes';
+            } else {
+              rows.sort(function(a, b) {
+                return a[d] - b[d];
+              });
+              sortAscending = true;
+              this.className = 'des';
+            }
+          }
+        });
+
+      var timeformat = d3.timeFormat("%M:%S");
+      var rows = table.append('tbody').selectAll('tr')
+        .data(data).enter()
+        .append('tr');
+      rows.selectAll('td')
+        .data(function(d) {
+          return titles.map(function(key, i) {
+            return {
+              'value': d[key],
+              'name': d
+            };
+          });
+        }).enter()
+        .append('td')
+        .attr('data-th', function(d) {
+          return d.name;
+        })
+        .text(function(d) {
+          // console.log("typeof(" + d.value + "): " + typeof(d.value));
+          if (typeof(d.value) == "object") {
+            return timeformat(d.value)
+          } else {
+            return d.value
+          }
+        });
+    } // end tableFunction()
   </script>
 </body>
