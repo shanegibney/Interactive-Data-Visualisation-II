@@ -6,15 +6,15 @@
   }
 
   .exit {
-    fill: red;
+    /* fill: red; */
   }
 
   .update {
-    fill: orange;
+    /* fill: orange; */
   }
 
   .enter {
-    fill: green;
+    /* fill: green; */
   }
 
   #json {
@@ -122,7 +122,20 @@
       width = 1000 - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom,
       radius = 120;
-    var color = ["#2C93E8", "#838690", "#F56C4E", "#A60F2B", "#648C85", "#B3F2C9", "#528C18", "#C3F25C"];
+
+    // var color = ["#2C93E8", "#838690", "#F56C4E", "#A60F2B", "#648C85", "#B3F2C9", "#528C18", "#C3F25C"];
+    function getRandomColor() {
+      var hue;
+      var color = [];
+      for (var i = 0; i < 10; i++) {
+        hue = '#' + (Math.floor(Math.random() * 256)) + (Math.floor(Math.random() * 256)) + (Math.floor(Math.random() * 256));
+        color.push(hue);
+      }
+      console.log("colors: " + color);
+      return color;
+    }
+
+    var color = getRandomColor();
     var off_opacity = 0.5;
     // set the domains and ranges for main bar chart
 
@@ -223,6 +236,9 @@
 
       d3.json("data" + index + ".json", function(error, newdata) {
 
+        var parseTime = d3.timeParse("%M:%S");
+        var timeformat = d3.timeFormat("%M:%S")
+
         var stringConditionCategory = ''; //construct condition
         var stringConditionOrigin = ''; //construct condition
         var stringCondition = '';
@@ -268,12 +284,16 @@
           }
         }
 
-        data.forEach(function(d) {
-          d.value = +d.value;
-        })
-
         // To display json in html page
         document.getElementById("json").innerHTML = "<h5>data" + index + ".json</h5>" + "<pre>" + JSON.stringify(newdata, null, 2) + "</pre>";
+
+        // data.forEach(function(d) {
+        //   d.clocktime = +d.clocktime;
+        // })
+        data.forEach(function(d) {
+          d.clocktime = parseTime(d.clocktime);
+          d.handicap = parseTime(d.handicap);
+        });
 
         d3.select("svg").remove(); //this will clear all charts
         updateBar();
@@ -296,13 +316,24 @@
         .range([0, width])
         .padding([0.6]);
 
+      // var y = d3.scaleLinear()
+      //   .range([height, 0]);
+      var parseTime = d3.timeParse("%M:%S");
+      var timeformat = d3.timeFormat("%M:%S")
+
       // temporal y-scale
-      var y = d3.scaleLinear()
-        .range([height, 0]);
+      var y = d3.scaleTime()
+        .range([height, 0]); //time must increase from 0 to height else racetime and handicap are inverted!!!
+
+      var y1 = d3.scaleTime()
+        .range([height, 0]); //time must increase from 0 to height else racetime and handicap are inverted!!!
 
       var xAxis = d3.axisBottom(x);
 
       var yAxis = d3.axisLeft(y)
+        .ticks(8);
+
+      var yAxis1 = d3.axisLeft(y1)
         .ticks(8);
 
       // Add main graph svg
@@ -311,8 +342,12 @@
         .attr("width", width + margin.left + margin.right) //1000
         .attr("height", height + margin.top + margin.bottom); //400
 
-      // Add groups for main bar chart
+      // Add groups for main bar chart clicktime
       var g0 = svgBar.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Add groups for main bar chart handicap
+      var g1 = svgBar.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       // set the domains
@@ -320,13 +355,21 @@
         return d.name
       }));
 
-      // set domain temporal y-scale
-      y.domain([0, d3.max(data, function(d) {
-        return d.value;
-      })]).nice();
+      y.domain([parseTime('00:00'), d3.max(data, function(d) {
+        return d.clocktime
+      })])
+
+      // y1.domain([parseTime('00:00'), d3.max(data, function(d) {
+      //   return d.handicap
+      // })])
+
+      // // set domain temporal y-scale
+      // y.domain([0, d3.max(data, function(d) {
+      //   return d.clocktime;
+      // })]).nice();
 
       // Add the X Axis
-      svgBar.select(".x.axis").call(xAxis);
+      // svgBar.select(".x.axis").call(xAxis);
       svgBar.select(".x.axis").remove();
       svgBar.append("g")
         .attr("class", "x axis")
@@ -334,14 +377,24 @@
         .call(xAxis);
 
       // Add the y axis on left
-      svgBar.select(".y.axis").remove();
-      svgBar.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
-        .call(yAxis);
+      // svgBar.select(".y.axis").remove();
+      // svgBar.append("g")
+      //   .attr("class", "y axis")
+      //   .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+      //   .call(yAxis);
 
-      var t = d3.transition()
-        .duration(750);
+      // Add the y axis on left
+      svgBar.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + (margin.left) + "," + margin.top + ")")
+        .call(d3.axisLeft(y)
+          .ticks(7)
+          .tickFormat(d3.timeFormat("%M:%S"))
+        );
+
+      //---------------------------------------------------------------
+      //-------****** Start Bar Chart Rects for clocktime ******-------
+      //---------------------------------------------------------------
 
       // JOIN new data with old elements
       var newRects0 = g0.selectAll(".bar")
@@ -378,10 +431,10 @@
           return x(d.name);
         }) // old elememnts in new data transition to their new position
         .attr("y", function(d) {
-          return y(d.value)
+          return y(d.clocktime)
         }) // old elememnts in new data transition to their y position
         .attr("height", function(d, i) {
-          return height - y(d.value)
+          return height - y(d.clocktime)
         }); // old elememnts in new data transition to their correct height
 
       // ENTER new elements present in new data
@@ -402,14 +455,89 @@
           .delay(500))
         .duration(750)
         .attr("y", function(d, i) {
-          return y(d.value);
+          return y(d.clocktime);
         }) // after the transition bars goes to its correct y position
         .attr("height", function(d, i) {
-          return height - y(d.value)
+          return height - y(d.clocktime)
         })
         .style("fill", function(d, i) {
-          return color[i];
+          return "#58D68D";
         }); // after transition bar grows to its full height
+
+
+      //---------------------------------------------------------------
+      //-------****** Start Bar Chart Rects for handicap ******--------
+      //---------------------------------------------------------------
+
+      // JOIN new data with old elements
+      var newRects1 = g1.selectAll(".bar")
+        .data(data, function(d) {
+          return d.name;
+        });
+
+      // EXIT old elements not present in new data
+      newRects1.exit()
+        .attr("class", function(d) {
+          return "exit bar";
+        }) // fill red
+        .transition(d3.transition()
+          // .delay(0)
+          .duration(750))
+        .attr("width", x.bandwidth())
+        .attr("y", function(d) {
+          return height;
+        }) // old elements which are leaving the chart, their y position transitions to the xaxis
+        .attr("height", function(d) {
+          return 0;
+        }) // old elements which are leaving the chart, therir height trasnitions to 0
+        .remove();
+
+      // UPDATE old elements present in new data
+      newRects1.attr("class", function(d) {
+          return "update bar";
+        })
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("width", x.bandwidth())
+        .attr("x", function(d) {
+          return x(d.name);
+        }) // old elememnts in new data transition to their new position
+        .attr("y", function(d) {
+          return y(d.handicap)
+        }) // old elememnts in new data transition to their y position
+        .attr("height", function(d, i) {
+          return height - y(d.handicap)
+        }); // old elememnts in new data transition to their correct height
+
+      // ENTER new elements present in new data
+      // EXIT and UPDATE above will not apply first time render as there is no change to the data.
+      newRects1.enter()
+        .append('rect')
+        .attr("class", "enter bar") // fill green
+        .attr("x", function(d) {
+          return x(d.name);
+        })
+        .attr("y", height) // bars start on xaxis or position y=height
+        .attr("height", function(d) {
+          return 0;
+        }) // bars start with zero height
+        .attr("width", x.bandwidth()) //why is the width not consistent
+        // .attr("width", 50)
+        .transition(d3.transition()
+          .delay(500))
+        .duration(750)
+        .attr("y", function(d, i) {
+          return y(d.handicap);
+        }) // after the transition bars goes to its correct y position
+        .attr("height", function(d, i) {
+          return height - y(d.handicap)
+        })
+        .style("fill", function(d, i) {
+          // return color[i];
+          return "#5DADE2";
+        }); // after transition bar grows to its full height
+
 
     }; // end of updateBar() function
 
@@ -460,9 +588,10 @@
           return leaves.length;
         })
         .entries(data);
-
+      console.log(origin_count);
       // set the domains
       xOrigin.domain(origin_count.map(function(d) {
+        console.log(d.key);
         return d.key;
       }));
 
@@ -614,6 +743,12 @@
         .attr("height", function(d, i) {
           return heightOrigin - yOrigin(d.value)
         });
+
+      svgOrigin.append("text")
+        .attr("transform", "translate(250,30)")
+        .text("Number of Swimmers by Club")
+        .style("text-anchor", "middle")
+        .style("fill", "black");
       // after transition bar grows to its full height
     }; // end of updateBarOrigin() function
 
@@ -743,9 +878,10 @@
         .style("text-anchor", "middle")
         .style("font-size", "15px")
         .style("fill", "white");
+
       svgPie.append("text")
         .attr("transform", "translate(0," + (0 - radius) + ")")
-        .text("Count occurences of each category")
+        .text("Number of Swimmers by Category")
         .style("text-anchor", "middle")
         .style("fill", "black");
 

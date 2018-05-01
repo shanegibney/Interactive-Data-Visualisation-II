@@ -1,61 +1,71 @@
 [{
     "name": "CH",
     "category": "M40",
-    "value": 1,
+    "clocktime": "11:33",
+    "handicap": "02:15",
     "origin": "sea"
   },
   {
     "name": "AM",
     "category": "M60",
-    "value": 2,
+    "clocktime": "14:15",
+    "handicap": "06:30",
     "origin": "land"
   },
   {
     "name": "DZ",
     "category": "M40",
-    "value": 3,
+    "clocktime": "22:15",
+    "handicap": "00:00",
     "origin": "sea"
   },
   {
     "name": "CC",
     "category": "M50",
-    "value": 4,
+    "clocktime": "22:20",
+    "handicap": "05:00",
     "origin": "land"
   },
   {
     "name": "IS",
     "category": "M50",
-    "value": 5,
+    "clocktime": "10:21",
+    "handicap": "04:45",
     "origin": "sky"
   },
   {
     "name": "LM",
     "category": "M40",
-    "value": 6,
+    "clocktime": "22:21",
+    "handicap": "03:00",
     "origin": "land"
   },
   {
     "name": "SB",
     "category": "M50",
-    "value": 7,
+    "clocktime": "22:22",
+    "handicap": "02:30",
     "origin": "sea"
   },
   {
     "name": "SD",
     "category": "M60",
-    "value": 8,
+    "clocktime": "22:23",
+    "handicap": "04:15",
     "origin": "sky"
   },
   {
     "name": "RV",
     "category": "M60",
-    "value": 9,
+    "clocktime": "22:57",
+    "handicap": "06:45",
     "origin": "land"
   },
   {
     "name": "YK",
     "category": "M60",
-    "value": 1,
+    "clocktime": "23:04",
+    "handicap": "05:15",
     "origin": "sea"
   }
 ]
