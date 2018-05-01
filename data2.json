@@ -13,6 +13,13 @@
     "origin": "sky"
   },
   {
+    "name": "IS",
+    "category": "M50",
+    "clocktime": "23:00",
+    "handicap": "01:30",
+    "origin": "sky"
+  },
+  {
     "name": "SD",
     "category": "M60",
     "clocktime": "27:00",

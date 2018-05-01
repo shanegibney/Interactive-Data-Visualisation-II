@@ -17,6 +17,10 @@
     /* fill: green; */
   }
 
+  .filter {
+    font-size: 15px;
+  }
+
   #json {
     max-height: 600px;
     width: 150px;
@@ -101,10 +105,13 @@
       </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" onclick="refreshFunction('1','true')" href="#">Refresh</a>
+      <a class="nav-link" onclick="updateFunction('1','true')" href="#">Refresh</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="https://github.com/shanegibney/Interactive-Data-Visualisation-II">Link</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">About</a>
     </li>
     <!-- <li class="nav-item">
       <a class="nav-link disabled" href="#">INTERACTIVE DASH-BOARD (d3.js v4)</a>
@@ -112,6 +119,10 @@
     <li class="nav-item"><span class="nav-link">Leinster Open Sea Races</span></li>
   </ul>
   <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12" id="filter">
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-10">
         <div class="row">
@@ -292,7 +303,7 @@
         // refresh(index);
       }
       indexTemp = index;
-
+      var filter = '';
       d3.json("data" + index + ".json", function(error, newdata) {
 
         var parseTime = d3.timeParse("%M:%S");
@@ -345,6 +356,21 @@
 
         // To display json in html page
         document.getElementById("json").innerHTML = "<h5>data" + index + ".json</h5>" + "<pre>" + JSON.stringify(newdata, null, 2) + "</pre>";
+
+        if (categoryArr.length > 0) {
+          filter += categoryArr;
+        }
+        if (originArr.length > 0) {
+          if (filter.length > 0) {
+            filter += ",";
+          }
+          filter += originArr;
+        }
+        if (filter.length > 0) {
+          document.getElementById("filter").innerHTML = "<span class='filter'><pre>Filtered by: " + filter + "</pre></span>";
+        } else {
+          document.getElementById("filter").innerHTML = "<h5><pre></pre></h5>";
+        }
 
         // data.forEach(function(d) {
         //   d.clocktime = +d.clocktime;
