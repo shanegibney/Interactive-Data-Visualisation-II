@@ -1,61 +1,71 @@
 [{
     "name": "RT",
     "category": "M50",
-    "clocktime": 1,
+    "clocktime": "24:07",
+    "handicap": "04:30",
     "origin": "land"
   },
   {
     "name": "KM",
     "category": "M50",
-    "clocktime": 2,
+    "clocktime": "23:30",
+    "handicap": "02:20",
     "origin": "sky"
   },
   {
     "name": "SD",
     "category": "M60",
-    "clocktime": 3,
+    "clocktime": "27:00",
+    "handicap": "03:30",
     "origin": "sea"
   },
   {
     "name": "DK",
     "category": "M50",
-    "clocktime": 4,
+    "clocktime": "18:35",
+    "handicap": "03:00",
     "origin": "land"
   },
   {
     "name": "BD",
     "category": "M40",
-    "clocktime": 5,
+    "clocktime": "20:25",
+    "handicap": "05:30",
     "origin": "sea"
   },
   {
     "name": "KC",
     "category": "M40",
-    "clocktime": 6,
+    "clocktime": "23:45",
+    "handicap": "01:00",
     "origin": "land"
   },
   {
     "name": "PM",
     "category": "M40",
-    "clocktime": 7,
+    "clocktime": "21:00",
+    "handicap": "03:00",
     "origin": "sea"
   },
   {
     "name": "NR",
     "category": "M50",
-    "clocktime": 8,
+    "clocktime": "24:17",
+    "handicap": "02:10",
     "origin": "land"
   },
   {
     "name": "LM",
     "category": "M50",
-    "clocktime": 9,
+    "clocktime": "19:30",
+    "handicap": "04:00",
     "origin": "sea"
   },
   {
     "name": "SL",
     "category": "M60",
-    "clocktime": 1,
+    "clocktime": "20:00",
+    "handicap": "00:30",
     "origin": "land"
   }
 ]
